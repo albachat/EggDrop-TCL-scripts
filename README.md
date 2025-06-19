@@ -1,5 +1,7 @@
 <h3>Description of the scripts</h3>
 
+<strong>auto-oper.tcl</strong> - EggDrop auto OPER on connect
+<strong>botattack.tcl</strong> - Channel protection from drone/bot attacks using suspicious nicknames
 <strong>revert.tcl</strong> - Protects specific user hosts from being banned,  reverses any unauthorized +v, +h, or +o  if not set by authorized users
 <strong>singlecharban.tcl</strong> - Ban on Multiline Single-Character Text or Action Lines in #AlbaChat where BOT is oper  
 <strong>multi-host-repeat.tcl</strong> - Advanced multi-host repeat flood detection and protection script.  
