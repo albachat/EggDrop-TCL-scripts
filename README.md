@@ -1,6 +1,5 @@
-Here’s an Eggdrop TCL script that bans users who send multiline single-character lines in #AlbaChat, even if the bot does not have @ (op) status.
-
-    ✅ Works in #AlbaChat
-    ✅ Detects 1-character lines repeated across multiple lines
-    ✅ Bot does not require operator status to detect and log
-    ✅ You can still log or notify ops if bot has no @
+revert.tcl - TCL script for Eggdrop that will automatically remove +v (voice), +h (halfop), and +o (op) from any user unless the change was made by one of these trusted users:
+singlecharban.tcl - Ban on Multiline Single-Character Text or Action Lines in #AlbaChat where BOT is oper
+multi-host-repeat.tcl - Advanced multi-host repeat flood detection and protection script.
+multi-host-nick-flood.tcl - Protection against nick floods from multihosts
+autodj.tcl - AutoDj tcl that plays current songs and has some public commands like !song !next !play and !pause
