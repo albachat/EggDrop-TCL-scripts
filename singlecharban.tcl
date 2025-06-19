@@ -13,33 +13,33 @@ bind pubm - * check_multiline_char
 bind ctcp - "ACTION" check_multiline_char_action
 
 # Set the channel to monitor
-set monitored_channel "#albachat"
+set monitored_channel "#AlbaChat"
 
-# Function to check for multiline single-character messages
+# Check regular messages
 proc check_multiline_char {nick uhost hand chan text} {
     global monitored_channel
-    if {![string equal $chan $monitored_channel]} { return }
+    if {![string equal -nocase $chan $monitored_channel]} { return }
 
-    if {[is_multiline_single_char $text]} {
+    if {[is_multiline_single_char $text 2]} {
         putquick "MODE $chan +b $uhost"
-        putquick "KICK $chan $nick :Multiline single-character spam is not allowed."
+        putquick "KICK $chan $nick :Mos shenoni nga 1 shkronje ose shenje."
     }
 }
 
-# Function to check CTCP /me actions
+# Check ACTION messages (/me)
 proc check_multiline_char_action {nick uhost hand dest keyword args} {
     global monitored_channel
-    if {![string equal $dest $monitored_channel]} { return }
+    if {![string equal -nocase $dest $monitored_channel]} { return }
 
     set msg [lindex $args 0]
-    if {[is_multiline_single_char $msg]} {
+    if {[is_multiline_single_char $msg 2]} {
         putquick "MODE $dest +b $uhost"
-        putquick "KICK $dest $nick :Multiline single-character action messages are not allowed."
+        putquick "KICK $dest $nick :Mos shenoni nga 1 shkronje ose shenje."
     }
 }
 
-# Utility to check for single-character lines
-proc is_multiline_single_char {msg} {
+# Core logic to detect multiline single-character messages
+proc is_multiline_single_char {msg minlines} {
     set lines [split $msg "\n"]
     set count 0
 
@@ -50,5 +50,6 @@ proc is_multiline_single_char {msg} {
         }
     }
 
-    return [expr {$count >= 4 && $count == [llength $lines]}]
+    # Ban if all lines are 1 character and we have at least $minlines
+    return [expr {$count >= $minlines && $count == [llength $lines]}]
 }
