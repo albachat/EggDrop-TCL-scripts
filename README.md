@@ -3,3 +3,4 @@
 <strong>multi-host-repeat.tcl</strong> - Advanced multi-host repeat flood detection and protection script.  
 <strong>multi-host-nick-flood.tcl</strong> - Protection against nick floods from multihosts  
 <strong>autodj.tcl</strong> - AutoDj tcl that plays current songs and has some public commands like !song !next !play and !pause  
+<strong>random.tcl</strong> - Randomly sends a public message  to a random user in #AlbaChat 
