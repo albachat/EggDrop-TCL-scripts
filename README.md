@@ -6,7 +6,7 @@
 <strong>multi-host-repeat.tcl</strong> - Advanced multi-host repeat flood detection and protection script.  
 <strong>multi-host-nick-flood.tcl</strong> - Protection against nick floods from multihosts  
 <strong>random.tcl</strong> - Randomly sends a public message  to a random user in #AlbaChat 
-<strong>revert.tcl</strong> - Protects specific user hosts from being banned,  reverses any unauthorized +v, +h, or +o  if not set by authorized users
+<strong>revert.tcl</strong> - Protects specific user hosts from being banned,  reverses any unauthorized +v, +h, or +o  if not set by authorized users  
 <strong>singlecharban.tcl</strong> - Ban on Multiline Single-Character Text or Action Lines in #AlbaChat where BOT is oper  
 
 <h3>Installation</h3>
