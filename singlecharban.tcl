@@ -8,43 +8,47 @@
 #
 ########################################################
 # Ban on Multiline Single-Character Lines in #AlbaChat #
-# === Configuration ===
-set spam_channel "#AlbaChat"
-set ban_duration 300              ;# Duration of ban in seconds (0 = permanent)
-set spam_line_threshold 3         ;# Minimum number of 1-character lines to trigger action
+# Enable channel events
+bind pubm - * check_multiline_char
+bind ctcp - "ACTION" check_multiline_char_action
 
-# === Bind to public messages ===
-bind pubm - * detect_multiline_spam
+# Set the channel to monitor
+set monitored_channel "#albachat"
 
-proc detect_multiline_spam {nick uhost hand chan text} {
-    global spam_channel ban_duration spam_line_threshold
+# Function to check for multiline single-character messages
+proc check_multiline_char {nick uhost hand chan text} {
+    global monitored_channel
+    if {![string equal $chan $monitored_channel]} { return }
 
-    # Only apply in #AlbaChat (case-insensitive)
-    if {[string tolower $chan] ne [string tolower $spam_channel]} {
-        return
+    if {[is_multiline_single_char $text]} {
+        putquick "MODE $chan +b $uhost"
+        putquick "KICK $chan $nick :Multiline single-character spam is not allowed."
     }
+}
 
-    # Count lines that are single characters (after trimming)
-    set lines [split $text "\n"]
-    set onechar_count 0
+# Function to check CTCP /me actions
+proc check_multiline_char_action {nick uhost hand dest keyword args} {
+    global monitored_channel
+    if {![string equal $dest $monitored_channel]} { return }
+
+    set msg [lindex $args 0]
+    if {[is_multiline_single_char $msg]} {
+        putquick "MODE $dest +b $uhost"
+        putquick "KICK $dest $nick :Multiline single-character action messages are not allowed."
+    }
+}
+
+# Utility to check for single-character lines
+proc is_multiline_single_char {msg} {
+    set lines [split $msg "\n"]
+    set count 0
 
     foreach line $lines {
-        set clean [string trim $line]
-        if {[string length $clean] == 1} {
-            incr onechar_count
+        set line [string trim $line]
+        if {[string length $line] == 1} {
+            incr count
         }
     }
 
-    # If threshold is met, take action
-    if {$onechar_count >= $spam_line_threshold} {
-
-        # IRCop can set +b and kick even without @
-        putquick "MODE $chan +b $uhost"
-        putquick "KICK $chan $nick :Spamming single-character lines"
-
-        if {$ban_duration > 0} {
-            # Schedule unban if temporary
-            utimer $ban_duration [list putquick "MODE $chan -b $uhost"]
-        }
-    }
+    return [expr {$count >= 4 && $count == [llength $lines]}]
 }
