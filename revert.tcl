@@ -1,65 +1,85 @@
-# List of trusted nicks
-set trusted_mode_users {
-    "RadioZemra"
-    "ChanServ"
-    "OperServ"
-    "DeviL"
+#######################################################
+#           _ _            _____ _           _   
+#     /\   | | |          / ____| |         | |  
+#    /  \  | | |__   __ _| |    | |__   __ _| |_ 
+#   / /\ \ | | '_ \ / _` | |    | '_ \ / _` | __|
+#  / ____ \| | |_) | (_| | |____| | | | (_| | |_ 
+# /_/    \_\_|_.__/ \__,_|\_____|_| |_|\__,_|\__|
+#
+#######################################################
+# Protects specific user hosts from being banned. 
+# Reverses any unauthorized +v, +h, or +o 
+# (voice, halfop, op) if not set by authorized users
+
+# Authorized nicks allowed to set +v/+h/+o
+set allowed_nicks {ChanServ OperServ}
+
+# Protected hostmasks (no bans allowed)
+# Example: *!*@host.com or nick!*@*.isp.net
+set protected_hosts {
+    *!*@staff.zemra.org
 }
 
-# Channel to protect
-set protected_channel "#AlbaChat"
+# === Reverse Unauthorized +v/+h/+o ===
+bind raw - "MODE" reverse_unauthorized_modes
 
-# Bind to all mode changes
-bind mode - * protect_modes
+proc reverse_unauthorized_modes {from keyword text} {
+    set nick [lindex [split $from "!"] 0]
+    set chan [string tolower [lindex $text 0]]
 
-# Function to reverse unauthorized +v/+h/+o changes
-proc protect_modes {nick uhost hand chan mode args} {
-    global trusted_mode_users protected_channel
+    # Only apply in #AlbaChat
+    if {$chan ne "#albachat"} return
 
-    if {![string equal -nocase $chan $protected_channel]} {
-        return
-    }
+    # Skip if nick is allowed
+    if {[lsearch -exact $::allowed_nicks $nick] != -1} return
 
-    # Check if user is trusted
-    set is_trusted 0
-    foreach allowed $trusted_mode_users {
-        if {[string equal -nocase $nick $allowed]} {
-            set is_trusted 1
-            break
-        }
-    }
+    set modes [lindex $text 1]
+    set targets [lrange $text 2 end]
 
-    if {$is_trusted} {
-        return
-    }
+    set rev_modes ""
+    set rev_targets ""
 
-    set modes [split $mode ""]
+    set add 1
     set i 0
-    set reversed_modes ""
-    set reversed_args ""
-
-    # Loop through mode characters
-    foreach m $modes {
-        if {$m eq "+" || $m eq "-"} {
-            continue
+    foreach m [split $modes ""] {
+        if {$m eq "+"} {
+            set add 1
+        } elseif {$m eq "-"} {
+            set add 0
+        } elseif {$m in {v h o}} {
+            if {$add == 1} {
+                append rev_modes "-$m"
+                append rev_targets " [lindex $targets $i]"
+            }
+            incr i
+        } else {
+            incr i
         }
-
-        # Get corresponding argument (target nick)
-        set arg [lindex $args $i]
-
-        # If unauthorized user set +v, +h, or +o
-        if {[lindex $modes [expr {$i}] - 1] eq "+" && ($m eq "v" || $m eq "h" || $m eq "o")} {
-            append reversed_modes "-$m "
-            append reversed_args "$arg "
-        }
-
-        incr i
     }
 
-    # If any unauthorized modes found, reverse them
-    if {$reversed_modes ne ""} {
-        putquick "MODE $chan $reversed_modes $reversed_args"
-        putquick "PRIVMSG $chan :Unauthorized mode change by $nick. Reversing."
-        putlog "MODE PROTECTION: $nick tried unauthorized $mode $args in $chan — reversed"
+    if {[string length $rev_modes] > 0} {
+        putserv "MODE $chan $rev_modes$rev_targets"
     }
 }
+
+# === Ban Protection ===
+bind mode - * protect_from_ban
+
+proc protect_from_ban {nick uhost hand chan mode target} {
+    # Only act on #AlbaChat
+    if {[string tolower $chan] ne "#albachat"} return
+
+    if {$mode eq "+b"} {
+        foreach protected $::protected_hosts {
+            if {[matchban $protected $target]} {
+                # Remove the ban immediately
+                putserv "MODE $chan -b $target"
+                putserv "PRIVMSG $chan :Ban on protected user ($target) was reversed."
+                return
+            }
+        }
+    }
+}
+
+
+putlog "Channel Mode protection by DeviL loaded.."
