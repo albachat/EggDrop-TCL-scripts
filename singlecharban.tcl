@@ -1,4 +1,4 @@
-#######################################################
+#####################################################
 #           _ _            _____ _           _   
 #     /\   | | |          / ____| |         | |  
 #    /  \  | | |__   __ _| |    | |__   __ _| |_ 
@@ -6,39 +6,42 @@
 #  / ____ \| | |_) | (_| | |____| | | | (_| | |_ 
 # /_/    \_\_|_.__/ \__,_|\_____|_| |_|\__,_|\__|
 #
-########################################################
-# Ban on Multiline Single-Character Lines in #AlbaChat #
-# Enable channel events
+#####################################################
+# Ban on Multiline Single-Character Text or Action  #
+# Action Lines in #AlbaChat where BOT is oper       #
+
+# Bind normal and action messages
 bind pubm - * check_multiline_char
 bind ctcp - "ACTION" check_multiline_char_action
 
-# Set the channel to monitor
+# Channel to monitor
 set monitored_channel "#AlbaChat"
+
+# Threshold for triggering the ban
+set line_threshold 2
 
 # Check regular messages
 proc check_multiline_char {nick uhost hand chan text} {
-    global monitored_channel
+    global monitored_channel line_threshold
     if {![string equal -nocase $chan $monitored_channel]} { return }
 
-    if {[is_multiline_single_char $text 2]} {
-        putquick "MODE $chan +b $uhost"
-        putquick "KICK $chan $nick :Mos shenoni nga 1 shkronje ose shenje."
+    if {[is_multiline_single_char $text $line_threshold]} {
+        do_oper_ban $chan $nick $uhost "Multiline single-character message"
     }
 }
 
-# Check ACTION messages (/me)
+# Check action (/me) messages
 proc check_multiline_char_action {nick uhost hand dest keyword args} {
-    global monitored_channel
+    global monitored_channel line_threshold
     if {![string equal -nocase $dest $monitored_channel]} { return }
 
     set msg [lindex $args 0]
-    if {[is_multiline_single_char $msg 2]} {
-        putquick "MODE $dest +b $uhost"
-        putquick "KICK $dest $nick :Mos shenoni nga 1 shkronje ose shenje."
+    if {[is_multiline_single_char $msg $line_threshold]} {
+        do_oper_ban $dest $nick $uhost "Multiline single-character action"
     }
 }
 
-# Core logic to detect multiline single-character messages
+# Core check: message has at least $minlines lines of 1 character
 proc is_multiline_single_char {msg minlines} {
     set lines [split $msg "\n"]
     set count 0
@@ -50,6 +53,17 @@ proc is_multiline_single_char {msg minlines} {
         }
     }
 
-    # Ban if all lines are 1 character and we have at least $minlines
     return [expr {$count >= $minlines && $count == [llength $lines]}]
+}
+
+# Perform ban using oper privileges
+proc do_oper_ban {chan nick uhost reason} {
+    # Use full hostmask for oper ban
+    set hostmask "*!*[string range $uhost 1 end]"
+
+    # Set ban, then kick
+    putquick "MODE $chan +b $hostmask"
+    putquick "KICK $chan $nick :$reason"
+    
+    # Optional: log the action
 }
