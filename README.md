@@ -12,7 +12,7 @@
     Save as random.tcl in your scripts/ directory.
 
     Add to your Eggdrop config:
-
-source scripts/random.tcl
+    
+    source scripts/random.tcl
 
 Restart or .rehash your bot.
