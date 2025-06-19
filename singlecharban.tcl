@@ -7,7 +7,7 @@
 # /_/    \_\_|_.__/ \__,_|\_____|_| |_|\__,_|\__|
 #
 #####################################################
-# Ban on Multiline Single-Character Text or Action  #
+# Ban on Multiline Single-Character Text or         #
 # Action Lines in #AlbaChat where BOT is oper       #
 
 # Bind normal and action messages
