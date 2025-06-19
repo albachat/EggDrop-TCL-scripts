@@ -1,6 +1,6 @@
 <h3>Description of the scripts</h3>
 
-<strong>revert.tcl</strong> - TCL script for Eggdrop that will automatically remove +v (voice), +h (halfop), and +o (op) from any user unless the change was made by one of these trusted users  
+<strong>revert.tcl</strong> - Protects specific user hosts from being banned,  reverses any unauthorized +v, +h, or +o  if not set by authorized users
 <strong>singlecharban.tcl</strong> - Ban on Multiline Single-Character Text or Action Lines in #AlbaChat where BOT is oper  
 <strong>multi-host-repeat.tcl</strong> - Advanced multi-host repeat flood detection and protection script.  
 <strong>multi-host-nick-flood.tcl</strong> - Protection against nick floods from multihosts  
