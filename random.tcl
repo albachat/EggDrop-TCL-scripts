@@ -14,7 +14,7 @@
 # === Configuration ===
 
 # Channel to send messages in
-set randommsg_channel "#AbaChat"
+set randommsg_channel "#AlbaChat"
 
 # Interval between messages (in seconds)
 set randommsg_interval 540  ;# 9 minutes
