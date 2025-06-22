@@ -8,6 +8,7 @@
 <strong>random.tcl</strong> - Randomly sends a public message  to a random user in #AlbaChat  
 <strong>revert.tcl</strong> - Protects specific user hosts from being banned,  reverses any unauthorized +v, +h, or +o  if not set by authorized users  
 <strong>singlecharban.tcl</strong> - Ban on Multiline Single-Character Text or Action Lines in #AlbaChat where BOT is oper  
+<strong>pubcmdflood.tcl</strong> - Anti-flood script for public commands - Blocks users from spamming public commands (e.g., !help, !quote)  
 
 <h3>Installation</h3>
 
